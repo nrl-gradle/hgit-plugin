@@ -25,6 +25,10 @@ nrl {
     resolveNexus = true
 }
 
+hgit{
+    forceGit = true
+}
+
 pluginBundle {
     website = 'https://geoint.nrlssc.org/'
     vcsUrl = 'https://github.com/seanrl/nrl-gradle/hgit-plugin.git'
