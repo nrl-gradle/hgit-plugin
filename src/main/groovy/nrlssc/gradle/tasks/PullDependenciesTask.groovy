@@ -45,9 +45,11 @@ class PullDependenciesTask extends DefaultTask {
             String url = it.url
             
             String command = ""
+            String extra = ""
             if(url.endsWith(".git") || url.startsWith("git://"))
             {
                 command += hgit.getGit()
+                extra = " --recursive"
             }
             else
             {
@@ -55,7 +57,7 @@ class PullDependenciesTask extends DefaultTask {
             }
             
             String name = getRepoName(url)
-            command += " clone $url ../$name"
+            command += " clone$extra $url ../$name"
             
             if(!project.file("../$name").exists())
             {
