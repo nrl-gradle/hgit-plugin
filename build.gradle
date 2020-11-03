@@ -14,7 +14,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
 
-    compile 'mil.navy.nrlssc:gplugin-commons:1.8.18'
+    compile 'mil.navy.nrlssc:gplugin-commons:2.0.2'
 
     testImplementation gradleTestKit(),
             'junit:junit:4.12'
