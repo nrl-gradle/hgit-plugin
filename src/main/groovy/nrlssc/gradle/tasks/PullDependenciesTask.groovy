@@ -4,6 +4,7 @@ import groovy.json.JsonSlurper
 import nrlssc.gradle.HGitPlugin
 import nrlssc.gradle.extensions.HGitExtension
 import nrlssc.gradle.helpers.PluginUtils
+import nrlssc.gradle.helpers.PropertyName
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
@@ -32,17 +33,38 @@ class PullDependenciesTask extends DefaultTask {
         //TODO make work with DI2E
         Project project = getProject()
         if(!project.file(DEP_FILE).exists()){
-            logger.debug("Skipping PullDependencies on $project due to missing $DEP_FILE file")
+            logger.debug("Skipping $name on $project due to missing $DEP_FILE file")
             return
         }
 
+        HGitExtension hgit = project.extensions.getByType(HGitExtension.class)
+
+        if(hgit.isReleaseBranch(hgit.fetchBranch()) && hgit.isCI())
+        {
+            logger.info("Skipping $name on $project due to CI-Release status.")
+        }
+        
         JsonSlurper slurper = new JsonSlurper()
         Object deps = slurper.parse(project.file(DEP_FILE))
-        HGitExtension hgit = project.extensions.getByType(HGitExtension.class)
         
 
         deps.each {
             String url = it.url
+//            String userParam = it.userProperty
+//            String passParam = it.passProperty
+//            
+//            String creds = null
+//            if(userParam != null && userParam.size() > 0 && passParam != null && passParam.size() > 0)
+//            {
+//                if(PropertyName.exists(project, userParam) && PropertyName.exists(project, passParam))
+//                {
+//                    creds = "${PropertyName.getAsString(project, userParam)}:${PropertyName.getAsString(project, passParam)}"
+//                }
+//            }
+//            
+//            if(creds != null){
+//                //pass creds into URL...
+//            }
             
             String command = ""
             String extra = ""
@@ -63,6 +85,11 @@ class PullDependenciesTask extends DefaultTask {
             {
                 logger.lifecycle("Cloning '$name'")
                 logger.lifecycle(PluginUtils.execute(command, project.projectDir))
+            }
+            else 
+            {
+                logger.lifecycle("Pulling '$name'")
+                
             }
             
         }

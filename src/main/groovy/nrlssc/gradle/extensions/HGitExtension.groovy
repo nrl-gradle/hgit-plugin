@@ -22,9 +22,9 @@ class HGitExtension {
     private int majorVersion = -1
     private int minorVersion = -1
     
-    String relBranch = 'release'
-    String rcBranch = 'release-candidate'
-    String intBranch = 'develop'
+    private List<String> relBranches = ['release', 'origin/release']
+    private List<String> rcBranches = ['release-candidate', 'origin/release-candidate']
+    private List<String> intBranches = ['develop', 'origin/develop', 'default', 'origin/default']
     String rcQualifier = 'rc'
     String intQualifier = 'dev'
 
@@ -39,6 +39,54 @@ class HGitExtension {
     
 
     //region getters/setters
+    String getRelBranch() {
+        return relBranches.join(",")
+    }
+    
+    void setRelBranch(String branchName){
+        relBranches = [branchName, "origin/$branchName"]
+    }
+    
+    List<String> getRelBranches(){
+        return relBranches
+    }
+    
+    void setRelBranches(List<String> branches){
+        relBranches = branches
+    }
+
+    String getRcBranch() {
+        return rcBranches.join(",")
+    }
+
+    void setRcBranch(String branchName){
+        rcBranches = [branchName, "origin/$branchName"]
+    }
+
+    List<String> getRcBranches() {
+        return rcBranches
+    }
+
+    void setRcBranches(List<String> rcBranches) {
+        this.rcBranches = rcBranches
+    }
+
+    String getIntBranch() {
+        return intBranches.join(",")
+    }
+
+    void setIntBranch(String branchName){
+        relBranches = [branchName, "origin/$branchName"]
+    }
+
+    List<String> getIntBranches() {
+        return intBranches
+    }
+
+    void setIntBranches(List<String> intBranches) {
+        this.intBranches = intBranches
+    }
+
     int getMajorVersion() {
         return majorVersion
     }
@@ -101,15 +149,24 @@ class HGitExtension {
 
 
     boolean isReleaseBranch(String branch){
-        return branch == relBranch
+        for(String thisBranch in relBranches){
+            if(thisBranch == branch) return true
+        }
+        return false
     }
 
     boolean isRCBranch(String branch){
-        return branch == rcBranch
+        for(String thisBranch in rcBranches){
+            if(thisBranch == branch) return true
+        }
+        return false
     }
     
     boolean isIntBranch(String branch){
-        return branch == intBranch
+        for(String thisBranch in intBranches){
+            if(thisBranch == branch) return true
+        }
+        return false
     }
 
 
@@ -177,7 +234,19 @@ class HGitExtension {
         }
     }
 
-   
+   String getHGBranchesFilter(List<String> branches) {
+       boolean first = true
+       def branchesString = "("
+       for(String branchNam : relBranches){
+           if(!first) branchesString += " OR "
+
+           branchesString += "branch('$branchNam')"
+
+           if(first) first = false
+       }
+       branchesString += ")"
+       return branchesString
+   }
 
     String fetchMajorVersionHG(){
         String version = '0'
@@ -190,7 +259,7 @@ class HGitExtension {
                 def command = [getHG(),
                                "log",
                                "-r",
-                               "branch('$relBranch') and desc('major++') and ancestors(.)",
+                               "${getHGBranchesFilter(relBranches)} and desc('major++') and ancestors(.)",
                                "--template",
                                "{rev}|"]
                 String retText = PluginUtils.execute(command, project.projectDir)
@@ -218,21 +287,22 @@ class HGitExtension {
 
         if(scheme == VersionScheme.CommitMessage) {
             try {
-                    def command = [getHG(),
-                                   "log",
-                                   "-r",
-                                   "(max(branch('$relBranch') and desc('major++') and ancestors(.)):max(branch('$relBranch') and ancestors(.))) and desc('minor++') and branch('$relBranch')",
-                                   "--template",
-                                   "{rev}|"]
-                    String retText = PluginUtils.execute(command, project.projectDir)
+                def branchFilter = getHGBranchesFilter(relBranches)
+                def command = [getHG(),
+                               "log",
+                               "-r",
+                               "(max($branchFilter and desc('major++') and ancestors(.)):max($branchFilter and ancestors(.))) and desc('minor++') and $branchFilter",
+                               "--template",
+                               "{rev}|"]
+                String retText = PluginUtils.execute(command, project.projectDir)
 
-                    int ver = 0
-                    if (retText.contains("abort")) {
-                        ver = 0
-                    } else {
-                        ver = retText.tokenize("|").size()
-                    }
-                    version = ver
+                int ver = 0
+                if (retText.contains("abort")) {
+                    ver = 0
+                } else {
+                    ver = retText.tokenize("|").size()
+                }
+                version = ver
             }
             catch (Exception ex) {
                 return "0"
@@ -241,10 +311,11 @@ class HGitExtension {
         else if(scheme == VersionScheme.Standard)
         {
             try {
+                def branchFilter = getHGBranchesFilter(relBranches)
                 def command = [getHG(),
                                "log",
                                "-r",
-                               "(max(branch('$relBranch') and desc('major++') and ancestors(.)):max(branch('$relBranch') and ancestors(.)) and branch('$relBranch'))",
+                               "(max($branchFilter and desc('major++') and ancestors(.)):max($branchFilter and ancestors(.)) and $branchFilter)",
                                "--template",
                                "{rev}|"]
                 String retText = PluginUtils.execute(command, project.projectDir)
@@ -257,7 +328,7 @@ class HGitExtension {
                 }
                 
                 String tmp = null
-                if((tmp = PluginUtils.execute([getHG(), 'log', '-r', "max(branch('$relBranch'))", '--template', '{rev}|'], project.projectDir)).contains("|") && ver == 0)
+                if((tmp = PluginUtils.execute([getHG(), 'log', '-r', "max($branchFilter)", '--template', '{rev}|'], project.projectDir)).contains("|") && ver == 0)
                 {
                     ver = tmp.tokenize("|").size()
                 }
