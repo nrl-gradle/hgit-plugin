@@ -24,7 +24,7 @@ class HGitExtension {
     
     private List<String> relBranches = ['release', 'origin/release']
     private List<String> rcBranches = ['release-candidate', 'origin/release-candidate']
-    private List<String> intBranches = ['develop', 'origin/develop', 'default', 'origin/default']
+    private List<String> intBranches = ['default', 'origin/default', 'develop', 'origin/develop']
     String rcQualifier = 'rc'
     String intQualifier = 'dev'
 
@@ -44,7 +44,7 @@ class HGitExtension {
     }
     
     void setRelBranch(String branchName){
-        relBranches = [branchName, "origin/$branchName"]
+        relBranches = [branchName]
     }
     
     List<String> getRelBranches(){
@@ -60,7 +60,7 @@ class HGitExtension {
     }
 
     void setRcBranch(String branchName){
-        rcBranches = [branchName, "origin/$branchName"]
+        rcBranches = [branchName]
     }
 
     List<String> getRcBranches() {
@@ -76,7 +76,7 @@ class HGitExtension {
     }
 
     void setIntBranch(String branchName){
-        relBranches = [branchName, "origin/$branchName"]
+        relBranches = [branchName]
     }
 
     List<String> getIntBranches() {
@@ -234,116 +234,132 @@ class HGitExtension {
         }
     }
 
-   String getHGBranchesFilter(List<String> branches) {
-       boolean first = true
-       def branchesString = "("
-       for(String branchNam : relBranches){
-           if(!first) branchesString += " OR "
-
-           branchesString += "branch('$branchNam')"
-
-           if(first) first = false
-       }
-       branchesString += ")"
-       return branchesString
-   }
+//   String getHGBranchesFilter(List<String> branches) {
+//       boolean first = true
+//       def branchesString = "("
+//       for(String branchNam : relBranches){
+//           if(!first) branchesString += " or "
+//
+//           branchesString += "branch('$branchNam')"
+//
+//           if(first) first = false
+//       }
+//       branchesString += ")"
+//       return branchesString
+//   }
 
     String fetchMajorVersionHG(){
+        String version = '0'
+        for(String branch : relBranch){
+            try{
+                return fetchMajorVersionHG(branch)
+            } 
+            catch (Exception ex) {
+                
+            }
+        }
+        return version
+    }
+    
+    String fetchMajorVersionHG(String branchName){
         String version = '0'
         VersionScheme scheme = getVersionScheme()
 
         if(scheme == VersionScheme.Standard || scheme == VersionScheme.CommitMessage) {
-            //Major Version is calculated same regardless of VersionScheme
-            try {
+            
+            def command = [getHG(),
+                           "log",
+                           "-r",
+                           "branch('$branchName') and desc('major++') and ancestors(.)",
+                           "--template",
+                           "{rev}|"]
+            String retText = PluginUtils.execute(command, project.projectDir)
 
-                def command = [getHG(),
-                               "log",
-                               "-r",
-                               "${getHGBranchesFilter(relBranches)} and desc('major++') and ancestors(.)",
-                               "--template",
-                               "{rev}|"]
-                String retText = PluginUtils.execute(command, project.projectDir)
-
-                int ver = 0
-                if (retText.contains("abort")) {
-                    ver = 0
-                } else {
-                    ver = retText.tokenize("|").size()
-                }
-                version = ver
-            } catch (Exception ex) {
-                return '0'
+            int ver = 0
+            if (retText.contains("abort")) {
+                throw new Exception("invalid branch")
+            } else {
+                ver = retText.tokenize("|").size()
             }
+            version = ver
         }
-
-
-
         return version
     }
-
+    
     String fetchMinorVersionHG(){
         String version = '0'
         VersionScheme scheme = getVersionScheme()
 
         if(scheme == VersionScheme.CommitMessage) {
-            try {
-                def branchFilter = getHGBranchesFilter(relBranches)
-                def command = [getHG(),
-                               "log",
-                               "-r",
-                               "(max($branchFilter and desc('major++') and ancestors(.)):max($branchFilter and ancestors(.))) and desc('minor++') and $branchFilter",
-                               "--template",
-                               "{rev}|"]
-                String retText = PluginUtils.execute(command, project.projectDir)
-
-                int ver = 0
-                if (retText.contains("abort")) {
-                    ver = 0
-                } else {
-                    ver = retText.tokenize("|").size()
+            for(String branch in relBranches){
+                try {
+                    return fetchCMMinorVersionHG(branch)
                 }
-                version = ver
-            }
-            catch (Exception ex) {
-                return "0"
+                catch (Exception ex) {
+                }
             }
         }
         else if(scheme == VersionScheme.Standard)
         {
-            try {
-                def branchFilter = getHGBranchesFilter(relBranches)
-                def command = [getHG(),
-                               "log",
-                               "-r",
-                               "(max($branchFilter and desc('major++') and ancestors(.)):max($branchFilter and ancestors(.)) and $branchFilter)",
-                               "--template",
-                               "{rev}|"]
-                String retText = PluginUtils.execute(command, project.projectDir)
-
-                int ver = 0
-                if (retText.contains("abort")) {
-                    ver = 0
-                } else {
-                    ver = retText.tokenize("|").size()
+            for(String branch in relBranches){
+                try {
+                    return fetchStandardMinorVersionHG(branch)
                 }
-                
-                String tmp = null
-                if((tmp = PluginUtils.execute([getHG(), 'log', '-r', "max($branchFilter)", '--template', '{rev}|'], project.projectDir)).contains("|") && ver == 0)
-                {
-                    ver = tmp.tokenize("|").size()
+                catch (Exception ex) {
                 }
-                
-                version = ver
             }
-            catch (Exception ex) {
-                return "0"
-            }
-
         }
         
-
         return version
 
+    }
+    
+    String fetchStandardMinorVersionHG(String branch){
+        String version = '0'
+        def command = [getHG(),
+                       "log",
+                       "-r",
+                       "(max(branch('$branch') and desc('major++') and ancestors(.)):max(branch('$branch') and ancestors(.)) and branch('$branch'))",
+                       "--template",
+                       "{rev}|"]
+        String retText = PluginUtils.execute(command, project.projectDir)
+
+        int ver = 0
+        if (retText.contains("abort")) {
+            ver = 0
+        } else {
+            ver = retText.tokenize("|").size()
+        }
+
+        String tmp = null
+        if((tmp = PluginUtils.execute([getHG(), 'log', '-r', "max(branch('$branch'))", '--template', '{rev}|'], project.projectDir)).contains("|") && ver == 0)
+        {
+            ver = tmp.tokenize("|").size()
+        }
+
+        version = ver
+        return version
+    }
+    
+    String fetchCMMinorVersionHG(String branch){
+        String version = '0'
+        def command = [getHG(),
+                       "log",
+                       "-r",
+                       "(max(branch('$branch') and desc('major++') and ancestors(.)):max(branch('$branch') and ancestors(.))) and desc('minor++') and branch('$branch')",
+                       "--template",
+                       "{rev}|"]
+        String retText = PluginUtils.execute(command, project.projectDir)
+
+        int ver = 0
+        if (retText.contains("abort")) {
+            throw new Exception("invalid branch")
+        } else {
+            ver = retText.tokenize("|").size()
+        }
+        version = ver
+        
+        return version
     }
 
     String fetchBranch()
