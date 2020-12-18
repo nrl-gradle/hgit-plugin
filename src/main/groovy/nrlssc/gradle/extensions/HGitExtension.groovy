@@ -250,7 +250,7 @@ class HGitExtension {
 
     String fetchMajorVersionHG(){
         String version = '0'
-        for(String branch : relBranch){
+        for(String branch : relBranches){
             try{
                 return fetchMajorVersionHG(branch)
             } 
