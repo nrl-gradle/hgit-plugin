@@ -76,7 +76,7 @@ class HGitExtension {
     }
 
     void setIntBranch(String branchName){
-        relBranches = [branchName]
+        intBranches = [branchName]
     }
 
     List<String> getIntBranches() {
