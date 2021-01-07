@@ -50,46 +50,124 @@ class PullDependenciesTask extends DefaultTask {
 
         deps.each {
             String url = it.url
-//            String userParam = it.userProperty
-//            String passParam = it.passProperty
-//            
-//            String creds = null
-//            if(userParam != null && userParam.size() > 0 && passParam != null && passParam.size() > 0)
-//            {
-//                if(PropertyName.exists(project, userParam) && PropertyName.exists(project, passParam))
-//                {
-//                    creds = "${PropertyName.getAsString(project, userParam)}:${PropertyName.getAsString(project, passParam)}"
-//                }
-//            }
-//            
-//            if(creds != null){
-//                //pass creds into URL...
-//            }
+            String name = getRepoName(url)
+            String branch = hgit.fetchBranch()
+
+            if(it.credentialsId && it.credentialsId != null && it.credentialsId.size() > 0){
+                String credID = it.credentialsId
+                String userParam = "user_$credID"
+                String passParam = "pass_$credID"
+                
+                String creds = null
+                
+                if(PropertyName.exists(project, userParam) && PropertyName.exists(project, passParam))
+                {
+                    creds = "${PropertyName.getAsString(project, userParam)}:${PropertyName.getAsString(project, passParam)}"
+                }
+                
+    
+                if(creds != null && url.startsWith("https://")){
+                    url = url.replace("https://", "https://$creds@")
+                }
+            }
             
             String command = ""
             String extra = ""
+            boolean isGit = false
             if(url.endsWith(".git") || url.startsWith("git://"))
             {
-                command += hgit.getGit()
-                extra = " --recursive"
+                isGit = true
+                
             }
             else
+            {
+                if(!PluginUtils.execute((hgit.getGit() + " ls-remote $url"), project.projectDir, true).contains("fatal"))
+                {
+                    isGit = true
+                }
+                if(!PluginUtils.execute((hgit.getHG() + " identify $url"), project.projectDir, true).contains("abort"))
+                {
+                    isGit = false
+                }
+            }
+
+
+            boolean isClone = true
+            if(project.file("../$name").exists())
+            {
+                isClone = false
+            }
+            
+            if(isGit)
+            {
+                command += hgit.getGit()
+                if(isClone) extra = " --recursive"
+            }
+            else 
             {
                 command += hgit.getHG()
             }
             
-            String name = getRepoName(url)
-            command += " clone$extra $url ../$name"
+            if(isClone)
+            {
+                command += " clone$extra $url ../$name"
+            }
+            else {
+                command += " pull"
+                if(!isGit) command += " -u"
+            }
             
-            if(!project.file("../$name").exists())
+            if(isClone)
             {
                 logger.lifecycle("Cloning '$name'")
-                logger.lifecycle(PluginUtils.execute(command, project.projectDir))
+                logger.lifecycle(PluginUtils.execute(command, project.projectDir, true))
             }
             else 
             {
                 logger.lifecycle("Pulling '$name'")
+                File pullDir = project.file("../$name")
+                logger.lifecycle(PluginUtils.execute(command, pullDir, true))
                 
+            }
+            
+            //update to branch
+            File repoDir = project.file("../$name")
+            if(isGit)
+            {
+                boolean checkoutBranch = "develop"
+
+                String branchString = PluginUtils.execute(hgit.getGit() + " branch -a", repoDir, true)
+                String[] branches = branchString.split("\n")
+                for(String bran : branches)
+                {
+                    String fullBran = bran.substring(2).trim()
+                    if(fullBran.startsWith("remotes/origin"))
+                    {
+                        String actualBran = fullBran.replace("remotes/origin/", "")
+                        if(actualBran.equalsIgnoreCase(branch))
+                        {
+                            checkoutBranch = branch
+                        }
+                    }
+                }
+                
+                logger.lifecycle(PluginUtils.execute(hgit.getGit() + " checkout $checkoutBranch", repoDir, true))
+            }
+            else {
+                boolean checkoutBranch = "default"
+                
+                String branchString = PluginUtils.execute(hgit.getHG() + " branches", repoDir, true)
+                String[] branches = branchString.split("\n")
+                for(String bran : branches)
+                {
+                    if(bran.split(" ")[0].trim().equalsIgnoreCase(branch))
+                    {
+                        checkoutBranch = branch
+                    }
+                }
+                
+                logger.lifecycle("Updating to branch $checkoutBranch")
+                logger.lifecycle(PluginUtils.execute(hgit.getHG() + " update $checkoutBranch", repoDir, true))
             }
             
         }
