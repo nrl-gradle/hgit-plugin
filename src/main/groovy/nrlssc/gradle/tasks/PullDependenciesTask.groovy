@@ -141,18 +141,17 @@ class PullDependenciesTask extends DefaultTask {
             //update to branch
             if(isGit)
             {
-                boolean checkoutBranch = "develop"
+                String checkoutBranch = "develop"
 
                 String branchString = PluginUtils.execute(hgit.getGit() + " branch -a", repoDir, true)
                 String[] branches = branchString.split("\n")
                 for(String bran : branches)
                 {
-                    println bran
+                    bran = bran.trim()
                     if(bran.startsWith("remotes/origin"))
                     {
                         String actualBran = bran.replace("remotes/origin/", "")
                         
-                        logger.debug("Testing if $actualBran equals $branch")
                         if(actualBran.equalsIgnoreCase(branch))
                         {
                             checkoutBranch = branch
@@ -160,10 +159,10 @@ class PullDependenciesTask extends DefaultTask {
                     }
                 }
                 logger.lifecycle("Updating to $checkoutBranch")
-                logger.lifecycle(PluginUtils.execute(hgit.getGit() + " checkout $checkoutBranch", repoDir, false))
+                logger.lifecycle(PluginUtils.execute(hgit.getGit() + " checkout $checkoutBranch", repoDir, true))
             }
             else {
-                boolean checkoutBranch = "default"
+                String checkoutBranch = "default"
                 
                 String branchString = PluginUtils.execute(hgit.getHG() + " branches", repoDir, true)
                 String[] branches = branchString.split("\n")
