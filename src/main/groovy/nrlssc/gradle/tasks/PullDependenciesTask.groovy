@@ -127,7 +127,7 @@ class PullDependenciesTask extends DefaultTask {
             if(isClone)
             {
                 logger.lifecycle("Cloning '$name'")
-                logger.lifecycle(PluginUtils.execute(command, project.projectDir, true))
+                logger.lifecycle(PluginUtils.execute(command, project.projectDir, false))
             }
             else 
             {
