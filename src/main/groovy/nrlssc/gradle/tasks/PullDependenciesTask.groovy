@@ -62,7 +62,9 @@ class PullDependenciesTask extends DefaultTask {
                 
                 if(PropertyName.exists(project, userParam) && PropertyName.exists(project, passParam))
                 {
-                    creds = "${PropertyName.getAsString(project, userParam)}:${PropertyName.getAsString(project, passParam)}"
+                    String un = URLEncoder.encode(PropertyName.getAsString(project, userParam), "UTF-8")
+                    String pw = URLEncoder.encode(PropertyName.getAsString(project, passParam), "UTF-8")
+                    creds = ":"
                 }
                 else 
                 {
@@ -127,7 +129,7 @@ class PullDependenciesTask extends DefaultTask {
             if(isClone)
             {
                 logger.lifecycle("Cloning '$name'")
-                logger.lifecycle(PluginUtils.execute(command, project.projectDir, false))
+                logger.lifecycle(PluginUtils.execute(command, project.projectDir, true))
             }
             else 
             {
