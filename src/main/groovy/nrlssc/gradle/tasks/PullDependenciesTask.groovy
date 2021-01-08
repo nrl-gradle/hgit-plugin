@@ -64,7 +64,7 @@ class PullDependenciesTask extends DefaultTask {
                 {
                     String un = URLEncoder.encode(PropertyName.getAsString(project, userParam), "UTF-8")
                     String pw = URLEncoder.encode(PropertyName.getAsString(project, passParam), "UTF-8")
-                    creds = ":"
+                    creds = "$un:$pw"
                 }
                 else 
                 {
