@@ -64,6 +64,10 @@ class PullDependenciesTask extends DefaultTask {
                 {
                     creds = "${PropertyName.getAsString(project, userParam)}:${PropertyName.getAsString(project, passParam)}"
                 }
+                else 
+                {
+                    logger.lifecycle("PullDependencies expected credentials $credID, but found none.  Failure likely.") 
+                }
                 
     
                 if(creds != null && url.startsWith("https://")){
@@ -123,7 +127,7 @@ class PullDependenciesTask extends DefaultTask {
             if(isClone)
             {
                 logger.lifecycle("Cloning '$name'")
-                logger.lifecycle(PluginUtils.execute(command, project.projectDir, false))
+                logger.lifecycle(PluginUtils.execute(command, project.projectDir, true))
             }
             else 
             {
