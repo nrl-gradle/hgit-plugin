@@ -1,7 +1,6 @@
 package nrlssc.gradle.tasks
 
 import nrlssc.gradle.HGitPlugin
-import nrlssc.gradle.ProjectsSettingsPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -37,8 +36,8 @@ class UpdateDependenciesTask extends DefaultTask {
         Project project = getProject()
         
         Configuration upConf = checkRC ?
-                project.configurations.getByName(ProjectsSettingsPlugin.UP_CONFIG) :
-                project.configurations.getByName(ProjectsSettingsPlugin.UP_REL_CONFIG)
+                project.configurations.getByName(HGitPlugin.UP_CONFIG) :
+                project.configurations.getByName(HGitPlugin.UP_REL_CONFIG)
 
         Map<String, String> depReplacer = new HashMap<>()
         upConf.resolvedConfiguration.resolvedArtifacts.each {

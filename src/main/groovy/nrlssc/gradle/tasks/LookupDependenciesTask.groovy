@@ -1,6 +1,6 @@
 package nrlssc.gradle.tasks
 
-import nrlssc.gradle.ProjectsSettingsPlugin
+import nrlssc.gradle.HGitPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -37,8 +37,8 @@ class LookupDependenciesTask extends DefaultTask {
         Project project = getProject()
         
         Configuration upConf = checkRC ? 
-                project.configurations.getByName(ProjectsSettingsPlugin.UP_CONFIG) :
-                project.configurations.getByName(ProjectsSettingsPlugin.UP_REL_CONFIG)
+                project.configurations.getByName(HGitPlugin.UP_CONFIG) :
+                project.configurations.getByName(HGitPlugin.UP_REL_CONFIG)
         
         println "\nLatest Dependency Versions:"
         upConf.resolvedConfiguration.resolvedArtifacts.each {
