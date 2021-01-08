@@ -129,7 +129,7 @@ class PullDependenciesTask extends DefaultTask {
             if(isClone)
             {
                 logger.lifecycle("Cloning '$name'")
-                logger.lifecycle(PluginUtils.execute(command, project.projectDir, false))
+                logger.lifecycle(PluginUtils.execute(command, project.projectDir, true))
             }
             else 
             {
@@ -143,12 +143,12 @@ class PullDependenciesTask extends DefaultTask {
             {
                 boolean checkoutBranch = "develop"
 
-                logger.debug("RepoDir: $repoDir.absolutePath")
                 String branchString = PluginUtils.execute(hgit.getGit() + " branch -a", repoDir, true)
+                logger.debug("BranchString: $branchString")
                 String[] branches = branchString.split("\n")
                 for(String bran : branches)
                 {
-                    String fullBran = bran.substring(2).trim()
+                    String fullBran = bran.replace("*", "").trim()
                     if(fullBran.startsWith("remotes/origin"))
                     {
                         String actualBran = fullBran.replace("remotes/origin/", "")
@@ -159,7 +159,7 @@ class PullDependenciesTask extends DefaultTask {
                     }
                 }
                 
-                logger.lifecycle(PluginUtils.execute(hgit.getGit() + " checkout $checkoutBranch", repoDir, true))
+                logger.lifecycle(PluginUtils.execute(hgit.getGit() + " checkout $checkoutBranch", repoDir, false))
             }
             else {
                 boolean checkoutBranch = "default"
