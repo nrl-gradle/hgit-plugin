@@ -147,6 +147,7 @@ class PullDependenciesTask extends DefaultTask {
                 String[] branches = branchString.split("\n")
                 for(String bran : branches)
                 {
+                    println bran
                     if(bran.startsWith("remotes/origin"))
                     {
                         String actualBran = bran.replace("remotes/origin/", "")
