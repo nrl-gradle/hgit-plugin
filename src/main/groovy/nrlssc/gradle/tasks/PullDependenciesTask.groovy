@@ -41,7 +41,7 @@ class PullDependenciesTask extends DefaultTask {
 
         if(hgit.isReleaseBranch(hgit.fetchBranch()) && hgit.isCI())
         {
-            logger.info("Skipping $name on $project due to CI-Release status.")
+           //TODO: Need to force static versions here
         }
         
         JsonSlurper slurper = new JsonSlurper()

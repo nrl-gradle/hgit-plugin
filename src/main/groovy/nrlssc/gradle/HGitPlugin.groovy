@@ -17,6 +17,8 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencyResolveDetails
+import org.gradle.api.artifacts.DependencySubstitution
+import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.plugins.JavaPlugin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -61,6 +63,22 @@ class HGitPlugin implements Plugin<Project> {
                 }
             }
         }
+        
+//        project.afterEvaluate {
+//            HGitExtension ext = project.extensions.getByName('hgit')
+//            if(ext.isReleaseBranch(ext.fetchBranch())) {
+//                project.configurations.each {
+//                    it.resolutionStrategy.dependencySubstitution {
+//                        all { DependencySubstitution dependency ->
+//                            if (dependency.requested instanceof ModuleComponentSelector) {
+//                                dependency.useTarget details.requested.group + ':' + details.requested.module + ':' + details.requested.version
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+        
         
         RootVersionFileTask.createFor(project)
         CalculateVersionTask.createFor(project)
@@ -147,7 +165,7 @@ class HGitPlugin implements Plugin<Project> {
         LookupDependenciesTask.createRCFor(project)
         
         //endregion
+        
+        
     }
-
-    
 }
