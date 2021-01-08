@@ -93,7 +93,9 @@ class PullDependenciesTask extends DefaultTask {
 
 
             boolean isClone = true
-            if(project.file("../$name").exists())
+            File repoDir = new File("$project.projectDir.parentFile/$name")
+
+            if(repoDir.exists())
             {
                 isClone = false
             }
@@ -116,7 +118,8 @@ class PullDependenciesTask extends DefaultTask {
                 command += " pull"
                 if(!isGit) command += " -u"
             }
-            
+
+
             if(isClone)
             {
                 logger.lifecycle("Cloning '$name'")
@@ -125,17 +128,16 @@ class PullDependenciesTask extends DefaultTask {
             else 
             {
                 logger.lifecycle("Pulling '$name'")
-                File pullDir = project.file("../$name")
-                logger.lifecycle(PluginUtils.execute(command, pullDir, true))
+                logger.lifecycle(PluginUtils.execute(command, repoDir, true))
                 
             }
             
             //update to branch
-            File repoDir = project.file("../$name")
             if(isGit)
             {
                 boolean checkoutBranch = "develop"
 
+                logger.debug("RepoDir: $repoDir.absolutePath")
                 String branchString = PluginUtils.execute(hgit.getGit() + " branch -a", repoDir, true)
                 String[] branches = branchString.split("\n")
                 for(String bran : branches)
