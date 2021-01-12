@@ -6,6 +6,7 @@ import nrlssc.gradle.helpers.VersionScheme
 import nrlssc.gradle.tasks.CalculateVersionTask
 import nrlssc.gradle.tasks.LookupDependenciesTask
 import nrlssc.gradle.tasks.PullDependenciesTask
+import nrlssc.gradle.tasks.PushBuildTagTask
 import nrlssc.gradle.tasks.RootVersionFileTask
 import nrlssc.gradle.tasks.UpdateDependenciesTask
 import nrlssc.gradle.tasks.cmd.BranchTask
@@ -86,6 +87,7 @@ class HGitPlugin implements Plugin<Project> {
         FetchTask.createFor(project)
         StatusTask.createFor(project)
         PullDependenciesTask.createFor(project)
+        PushBuildTagTask.createFor(project)
 
         
         project.pluginManager.withPlugin('nrlssc.pub'){

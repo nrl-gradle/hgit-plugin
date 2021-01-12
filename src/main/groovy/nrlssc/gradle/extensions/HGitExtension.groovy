@@ -404,22 +404,21 @@ class HGitExtension {
     String fetchGitPrimaryVersion()
     {
         try{
-            String retVal = PluginUtils.execute([getGit(), 'describe', '--tags'], project.projectDir)
-            
             Pattern p = Pattern.compile('[Vv](\\d+\\.\\d+).*')
-            Matcher m = p.matcher(retVal)
-            if(m.matches())
-            {
-                retVal = m.group(1)
+            String tagStr = PluginUtils.execute(['git', 'tag', '--list', '--sort=-v:refname', '--merged'], project.projectDir)
+
+            String[] splits = tagStr.split("\n")
+
+            for(String tag : splits) {
+
+                Matcher m = p.matcher(tag)
+                if (m.matches()) {
+                    return m.group(1)
+                }
             }
-            else{
-                retVal = '0.0'
-            }
-            return retVal
-        }catch(Exception ex)
-        {
-            return '0.0'
-        }
+        }catch(Exception ex) {}
+        
+        return '0.0'
     }
 
     private static String getBetaQualifier(String branch){
@@ -527,6 +526,21 @@ class HGitExtension {
         }
 
         return version
+    }
+    
+    String getOriginUrl(){
+        return PluginUtils.execute(['git', 'remote', 'get-url', 'origin'], project.projectDir)
+    }
+    
+    void gitPushVersionTag(String url){
+        try {
+            String ver = getProjectVersion()
+            String tag = "build_$ver"
+            logger.lifecycle("Pushing tag: $tag")
+            PluginUtils.execute([getGit(), 'tag', tag], project.projectDir)
+            PluginUtils.execute([getGit(), 'push', url, '--tags'], project.projectDir, true)
+
+        }catch(Exception ex){}
     }
 
     boolean isCI()
