@@ -533,14 +533,11 @@ class HGitExtension {
     }
     
     void gitPushVersionTag(String url){
-        try {
-            String ver = getProjectVersion()
-            String tag = "build_$ver"
-            logger.lifecycle("Pushing tag: $tag")
-            PluginUtils.execute([getGit(), 'tag', tag], project.projectDir)
-            PluginUtils.execute([getGit(), 'push', url, '--tags'], project.projectDir, true)
-
-        }catch(Exception ex){}
+        String ver = getProjectVersion()
+        String tag = "build_$ver"
+        logger.lifecycle("Pushing tag: $tag")
+        PluginUtils.execute([getGit(), 'tag', tag], project.projectDir)
+        PluginUtils.execute([getGit(), 'push', url, '--tags'], project.projectDir, true)
     }
 
     boolean isCI()
