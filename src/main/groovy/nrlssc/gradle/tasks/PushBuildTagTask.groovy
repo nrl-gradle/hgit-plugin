@@ -31,9 +31,9 @@ class PushBuildTagTask extends DefaultTask {
         
         HGitExtension hgit = project.extensions.getByType(HGitExtension.class)
 
-        if(!hgit.isReleaseBranch(hgit.fetchBranch()) || !hgit.isCI())
+        if(!hgit.isCI())
         {
-            logger.lifecycle("Skipping PushBuildTag task, as this is not a release build.")
+            logger.lifecycle("Skipping PushBuildTag task for this snapshot.")
             return
         }
         
