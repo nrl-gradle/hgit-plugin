@@ -234,20 +234,6 @@ class HGitExtension {
         }
     }
 
-//   String getHGBranchesFilter(List<String> branches) {
-//       boolean first = true
-//       def branchesString = "("
-//       for(String branchNam : relBranches){
-//           if(!first) branchesString += " or "
-//
-//           branchesString += "branch('$branchNam')"
-//
-//           if(first) first = false
-//       }
-//       branchesString += ")"
-//       return branchesString
-//   }
-
     String fetchMajorVersionHG(){
         String version = '0'
         for(String branch : relBranches){
@@ -529,12 +515,20 @@ class HGitExtension {
     }
     
     String getOriginUrl(){
-        return PluginUtils.execute(['git', 'remote', 'get-url', 'origin'], project.projectDir)
+        return PluginUtils.execute([getGit(), 'remote', 'get-url', 'origin'], project.projectDir)
     }
     
     void gitPushVersionTag(String url){
         String ver = getProjectVersion()
         String tag = "build_$ver"
+        if(tag.endsWith("-$prereleaseString")){
+            tag = tag.substring(0, tag.length() - "-$prereleaseString".length())
+        }
+        if(tag.length() >= 100)
+        {
+            String shortHash = PluginUtils.execute([getGit(), 'rev-parse',  '--short=10', 'HEAD'], project.projectDir)
+            tag = tag.substring(0, 99 - shortHash.length()) + ".$shortHash"
+        }
         logger.lifecycle("Pushing tag: $tag")
         PluginUtils.execute([getGit(), 'tag', tag], project.projectDir)
         PluginUtils.execute([getGit(), 'push', url, '--tags'], project.projectDir, true)
