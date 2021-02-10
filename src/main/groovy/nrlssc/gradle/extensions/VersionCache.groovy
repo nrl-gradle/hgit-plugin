@@ -18,9 +18,7 @@ enum VersionCache {
     }
 
     String get(String vcsRoot){
-        String version = versionMap.get(vcsRoot)
-        logger.lifecycle("Retrived $version from VersionCache using $vcsRoot")
-        return version
+        return versionMap.get(vcsRoot)
     }
 
     boolean contains(String vcsRoot)
