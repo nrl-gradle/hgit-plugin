@@ -391,7 +391,7 @@ class HGitExtension {
     {
         try{
             Pattern p = Pattern.compile('[Vv](\\d+\\.\\d+).*')
-            String tagStr = PluginUtils.execute(['git', 'tag', '--list', '--sort=-v:refname', '--merged'], project.projectDir)
+            String tagStr = PluginUtils.execute([getGit(), 'tag', '--list', '--sort=-v:refname', '--merged'], project.projectDir)
 
             String[] splits = tagStr.split("\n")
 
@@ -446,8 +446,25 @@ class HGitExtension {
         
         return qualifier
     }
+
+    String getVCSRoot(){
+        switch (getCVS()){
+            case 'hg':
+                return PluginUtils.execute([getHG(), 'root'], project.projectDir)
+            case 'git':
+                return PluginUtils.execute([getGit(), 'rev-parse', '--show-toplevel'], project.projectDir)
+            default:
+                return project.projectDir.getAbsolutePath()
+        }
+    }
     
     String getProjectVersion(){
+        String vcsRoot = getVCSRoot()
+        if(VersionCache.Instance.contains(vcsRoot)) {
+            return VersionCache.Instance.get(vcsRoot)
+        }
+
+
         String version = "0.0"
         try {
             String patch = fetchPatchVersion()
@@ -506,10 +523,12 @@ class HGitExtension {
             }
             
             version += "." + patch + qualifier + snapString
+            VersionCache.Instance.put(vcsRoot, version)
         }catch(Exception ex)
         {
             version = "unknown"
         }
+
 
         return version
     }

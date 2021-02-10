@@ -45,41 +45,22 @@ class HGitPlugin implements Plugin<Project> {
     void apply(Project target) {
         this.project = target
 
-        project.extensions.create("hgit", HGitExtension, project)
+        HGitExtension ext = project.extensions.create("hgit", HGitExtension, project)
 
+        String version = ext.getProjectVersion()
+        logger.debug("$project.name has root of $project.rootProject.name")
 
-        project.gradle.projectsEvaluated {
-            HGitExtension ext = project.extensions.getByName('hgit')
-            String version = ext.getProjectVersion()
-            logger.debug("$project.name has root of $project.rootProject.name")
-
-            if (!ext.fastBuildEnabled() || PluginUtils.containsArtifactTask(project)) {
-                project.version = version
-                logger.lifecycle(project.name + " @ " + project.version)
-            } else {
-                project.version = getDate()
-                if (project.name == project.rootProject.name) {//only run once
-                    if (ext.fastBuildEnabled()) logger.lifecycle("Version Numbers suppressed due to the 'fastBuild' property.")
-                    else logger.lifecycle("Version Numbers suppressed during during non-artifact generating tasks.")
-                }
+        if (!ext.fastBuildEnabled() || PluginUtils.containsArtifactTask(project)) {
+            project.version = version
+            logger.lifecycle(project.name + " @ " + project.version)
+        } else {
+            project.version = getDate()
+            if (project.name == project.rootProject.name) {//only run once
+                if (ext.fastBuildEnabled()) logger.lifecycle("Version Numbers suppressed due to the 'fastBuild' property.")
+                else logger.lifecycle("Version Numbers suppressed during during non-artifact generating tasks.")
             }
         }
-        
-//        project.afterEvaluate {
-//            HGitExtension ext = project.extensions.getByName('hgit')
-//            if(ext.isReleaseBranch(ext.fetchBranch())) {
-//                project.configurations.each {
-//                    it.resolutionStrategy.dependencySubstitution {
-//                        all { DependencySubstitution dependency ->
-//                            if (dependency.requested instanceof ModuleComponentSelector) {
-//                                dependency.useTarget details.requested.group + ':' + details.requested.module + ':' + details.requested.version
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-        
+
         
         RootVersionFileTask.createFor(project)
         CalculateVersionTask.createFor(project)
@@ -125,13 +106,11 @@ class HGitPlugin implements Plugin<Project> {
             upConf
             upConfRel
         }
-        //upConf.extendsFrom(proj.configurations.getByName('default'))
         upConf.resolutionStrategy {
             cacheDynamicVersionsFor 0, 'seconds'
             cacheChangingModulesFor 0, 'seconds'
 
             eachDependency { DependencyResolveDetails details ->
-                //specifying a fixed version for all libraries with 'org.gradle' group
                 if (details.requested.group == project.group) {
                     details.useVersion '+'
                 }
@@ -143,7 +122,6 @@ class HGitPlugin implements Plugin<Project> {
             cacheChangingModulesFor 0, 'seconds'
 
             eachDependency { DependencyResolveDetails details ->
-                //specifying a fixed version for all libraries with 'org.gradle' group
                 if (details.requested.group == project.group) {
                     details.useVersion '+'
                 }
