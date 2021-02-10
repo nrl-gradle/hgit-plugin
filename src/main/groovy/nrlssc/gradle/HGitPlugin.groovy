@@ -45,18 +45,18 @@ class HGitPlugin implements Plugin<Project> {
     void apply(Project target) {
         this.project = target
 
-        HGitExtension ext = project.extensions.create("hgit", HGitExtension, project)
+        HGitExtension hgit = project.extensions.create("hgit", HGitExtension, project)
 
-        String version = ext.getProjectVersion()
+        String version = hgit.getProjectVersion()
         logger.debug("$project.name has root of $project.rootProject.name")
 
-        if (!ext.fastBuildEnabled() || PluginUtils.containsArtifactTask(project)) {
+        if (!hgit.fastBuildEnabled() || PluginUtils.containsArtifactTask(project)) {
             project.version = version
             logger.lifecycle(project.name + " @ " + project.version)
         } else {
             project.version = getDate()
             if (project.name == project.rootProject.name) {//only run once
-                if (ext.fastBuildEnabled()) logger.lifecycle("Version Numbers suppressed due to the 'fastBuild' property.")
+                if (hgit.fastBuildEnabled()) logger.lifecycle("Version Numbers suppressed due to the 'fastBuild' property.")
                 else logger.lifecycle("Version Numbers suppressed during during non-artifact generating tasks.")
             }
         }
