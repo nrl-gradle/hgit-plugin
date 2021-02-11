@@ -1,6 +1,7 @@
 package nrlssc.gradle
 
 import nrlssc.gradle.extensions.HGitExtension
+import nrlssc.gradle.extensions.VersionCache
 import nrlssc.gradle.helpers.PluginUtils
 import nrlssc.gradle.helpers.VersionScheme
 import nrlssc.gradle.tasks.CalculateVersionTask
@@ -18,9 +19,7 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencyResolveDetails
-import org.gradle.api.artifacts.DependencySubstitution
-import org.gradle.api.artifacts.component.ModuleComponentSelector
-import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.provider.Provider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -45,7 +44,10 @@ class HGitPlugin implements Plugin<Project> {
     void apply(Project target) {
         this.project = target
 
-        HGitExtension hgit = project.extensions.create("hgit", HGitExtension, project)
+        Provider<VersionCache> versionCacheProvider = project.getGradle().getSharedServices().registerIfAbsent("versioncache", VersionCache.class, {})
+        VersionCache versionCache = versionCacheProvider.get()
+
+        HGitExtension hgit = project.extensions.create("hgit", HGitExtension, project, versionCache)
 
         String version = hgit.getProjectVersion()
         logger.debug("$project.name has root of $project.rootProject.name")

@@ -4,6 +4,8 @@ import nrlssc.gradle.helpers.PluginUtils
 import nrlssc.gradle.helpers.PropertyName
 import nrlssc.gradle.helpers.VersionScheme
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Internal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -31,10 +33,12 @@ class HGitExtension {
     private boolean fastBuild = false
 
     private Project project
-    
-    HGitExtension(Project project)
+    private VersionCache versionCache
+
+    HGitExtension(Project project, VersionCache cache)
     {
         this.project = project
+        this.versionCache = cache
     }
     
 
@@ -457,11 +461,11 @@ class HGitExtension {
                 return project.projectDir.getAbsolutePath()
         }
     }
-    
+
     String getProjectVersion(){
         String vcsRoot = getVCSRoot()
-        if(VersionCache.Instance.contains(vcsRoot)) {
-            return VersionCache.Instance.get(vcsRoot)
+        if(versionCache.contains(vcsRoot)) {
+            return versionCache.get(vcsRoot)
         }
 
 
@@ -523,7 +527,7 @@ class HGitExtension {
             }
             
             version += "." + patch + qualifier + snapString
-            VersionCache.Instance.put(vcsRoot, version)
+            versionCache.put(vcsRoot, version)
         }catch(Exception ex)
         {
             version = "unknown"
