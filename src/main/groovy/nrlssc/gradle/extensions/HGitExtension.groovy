@@ -4,8 +4,6 @@ import nrlssc.gradle.helpers.PluginUtils
 import nrlssc.gradle.helpers.PropertyName
 import nrlssc.gradle.helpers.VersionScheme
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Internal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -21,8 +19,6 @@ class HGitExtension {
     
     VersionScheme versionScheme = VersionScheme.Standard
     String prereleaseString = 'SNAPSHOT'
-    private int majorVersion = -1
-    private int minorVersion = -1
     
     private List<String> relBranches = ['release', 'origin/release']
     private List<String> rcBranches = ['release-candidate', 'origin/release-candidate']
@@ -91,18 +87,55 @@ class HGitExtension {
         this.intBranches = intBranches
     }
 
-    int getMajorVersion() {
-        return majorVersion
-    }
 
     private boolean forceManual = false
-    void setMajorVersion(int majorVersion) {
-        this.majorVersion = majorVersion
-        forceManual = true
+    private boolean versionCachedOrFailed = false
+    private int major
+    private int minor
+
+    void checkManualVersion()
+    {
+        if(!versionCachedOrFailed)
+        {
+            boolean stopLooking = false
+            Project p = project
+            while(!stopLooking)
+            {
+                File f = project.file("version.gradle")
+                if(f.exists())
+                {
+                    String ver = f.text.trim()
+                    try{
+                        String[] splits = ver.split("\\.");
+                        major = Integer.parseInt(splits[0])
+                        minor = Integer.parseInt(splits[1])
+                        forceManual = true
+                        stopLooking = true
+                    }catch(ignored){
+                        logger.error("Invalid version $ver in ${f.getPath()}");
+                    }
+                }
+                if(p.getParent() != null)
+                {
+                    p = p.getParent()
+                }
+                else
+                {
+                    stopLooking = true
+                }
+            }
+            versionCachedOrFailed = true
+        }
     }
 
-    void setMajorVersion(String majorVersion) {
-        setMajorVersion(Integer.parseInt(majorVersion))
+    int getMajorVersion() {
+        checkManualVersion()
+        return major
+    }
+
+    int getMinorVersion() {
+        checkManualVersion()
+        return minor
     }
 
     void setFastBuild(boolean fb){
@@ -111,20 +144,6 @@ class HGitExtension {
 
     void setFastBuild(String fb){
         fastBuild = fb.toBoolean()
-    }
-
-    int getMinorVersion() {
-        return minorVersion
-    }
-
-    void setMinorVersion(int minorVersion) {
-        this.minorVersion = minorVersion
-        versionScheme = VersionScheme.Manual
-        forceManual = true
-    }
-
-    void setMinorVersion(String minorVersion) {
-        setMinorVersion(Integer.parseInt(minorVersion))
     }
 
     VersionScheme getVersionScheme(){
