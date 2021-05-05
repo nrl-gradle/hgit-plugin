@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 
 import java.util.concurrent.ConcurrentHashMap
 
-abstract class VersionCache implements BuildService<Params>, AutoCloseable {
+abstract class VersionCache implements BuildService<Params> {
     interface Params extends BuildServiceParameters {
 
     }
