@@ -48,6 +48,7 @@ class HGitPlugin implements Plugin<Project> {
         VersionCache versionCache = versionCacheProvider.get()
 
         HGitExtension hgit = project.extensions.create("hgit", HGitExtension, project, versionCache)
+        hgit.checkManualVersion()
 
         String version = hgit.getProjectVersion()
         logger.debug("$project.name has root of $project.rootProject.name")
