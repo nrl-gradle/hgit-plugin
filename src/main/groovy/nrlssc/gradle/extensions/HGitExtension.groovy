@@ -447,7 +447,13 @@ class HGitExtension {
         } else if (branch.startsWith("PR-")) {
             qualifier += branch.toLowerCase().replace("-", ".")
         } else{
-            qualifier = "b"
+            def matcher = branch =~ /[a-zA-Z0-9_]+/
+
+            for(def match in matcher){
+                qualifier += match + '.'
+            }
+
+            if(qualifier.endsWith('.')) qualifier = qualifier.substring(qualifier.length() - 1)
         }
         
         
