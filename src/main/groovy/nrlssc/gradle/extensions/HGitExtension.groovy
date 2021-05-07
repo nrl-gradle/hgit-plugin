@@ -453,7 +453,7 @@ class HGitExtension {
                 qualifier += match + '.'
             }
 
-            if(qualifier.endsWith('.')) qualifier = qualifier.substring(qualifier.length() - 1)
+            if(qualifier.endsWith('.')) qualifier.replaceAll(/\.$/, "")
         }
         
         
