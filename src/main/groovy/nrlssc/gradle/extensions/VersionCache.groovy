@@ -27,6 +27,10 @@ abstract class VersionCache implements BuildService<Params> {
         return versionMap.get(vcsRoot)
     }
 
+    void clear(){
+        versionMap.clear()
+    }
+
     boolean contains(String vcsRoot)
     {
         return versionMap.containsKey(vcsRoot)
