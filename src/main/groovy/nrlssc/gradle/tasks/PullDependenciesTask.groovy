@@ -51,7 +51,6 @@ class PullDependenciesTask extends DefaultTask {
         deps.each {
             String url = it.url
             String name = getRepoName(url)
-            String branch = hgit.fetchBranch()
 
             if(it.credentialsId && it.credentialsId != null && it.credentialsId.size() > 0){
                 String credID = it.credentialsId
@@ -139,12 +138,12 @@ class PullDependenciesTask extends DefaultTask {
             }
             
             //update to branch
-            String checkoutBranch = null
-            if(it.branch && it.branch != null && it.branch.size() > 0) checkoutBranch = it.branch
+            String branch = hgit.fetchBranch()
+            if(it.branch && it.branch != null && it.branch.size() > 0) branch = it.branch
 
             if(isGit)
             {
-                if(checkoutBranch == null) checkoutBranch = "develop"
+                String checkoutBranch = "develop"
 
                 String branchString = PluginUtils.execute(hgit.getGit() + " branch -a", repoDir, true)
                 String[] branches = branchString.split("\n")
@@ -165,7 +164,7 @@ class PullDependenciesTask extends DefaultTask {
                 logger.lifecycle(PluginUtils.execute(hgit.getGit() + " checkout $checkoutBranch", repoDir, true))
             }
             else {
-                if(checkoutBranch == null) checkoutBranch = "default"
+                String checkoutBranch = "default"
                 
                 String branchString = PluginUtils.execute(hgit.getHG() + " branches", repoDir, true)
                 String[] branches = branchString.split("\n")
