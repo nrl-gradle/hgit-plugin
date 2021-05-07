@@ -139,9 +139,12 @@ class PullDependenciesTask extends DefaultTask {
             }
             
             //update to branch
+            String checkoutBranch = null
+            if(it.branch && it.branch != null && it.branch.size() > 0) checkoutBranch = it.branch
+
             if(isGit)
             {
-                String checkoutBranch = "develop"
+                if(checkoutBranch == null) checkoutBranch = "develop"
 
                 String branchString = PluginUtils.execute(hgit.getGit() + " branch -a", repoDir, true)
                 String[] branches = branchString.split("\n")
@@ -162,7 +165,7 @@ class PullDependenciesTask extends DefaultTask {
                 logger.lifecycle(PluginUtils.execute(hgit.getGit() + " checkout $checkoutBranch", repoDir, true))
             }
             else {
-                String checkoutBranch = "default"
+                if(checkoutBranch == null) checkoutBranch = "default"
                 
                 String branchString = PluginUtils.execute(hgit.getHG() + " branches", repoDir, true)
                 String[] branches = branchString.split("\n")
