@@ -20,6 +20,10 @@ dependencies {
             'junit:junit:4.12'
 }
 
+tasks.withType(Copy) {
+    it.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 
 hgit{
     forceGit = true

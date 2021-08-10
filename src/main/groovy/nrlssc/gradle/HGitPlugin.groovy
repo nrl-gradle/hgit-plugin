@@ -95,8 +95,20 @@ class HGitPlugin implements Plugin<Project> {
         
         //region Update/Lookup Dependencies Configurations
         Project proj = project
-        Configuration upConf = proj.configurations.create(UP_CONFIG)
-        Configuration upConfRel = proj.configurations.create(UP_REL_CONFIG)
+
+        Configuration upConf
+        Configuration upConfRel
+
+        try{
+            upConf = proj.configurations.getByName(UP_CONFIG)
+        }catch(Exception ex){
+            upConf = proj.configurations.create(UP_CONFIG)
+        }
+        try{
+            upConfRel = proj.configurations.getByName(UP_REL_CONFIG)
+        }catch(Exception ex){
+            upConfRel = proj.configurations.create(UP_REL_CONFIG)
+        }
 
         Configuration defConf = proj.configurations.getByName('default')
 
