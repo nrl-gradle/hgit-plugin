@@ -7,13 +7,10 @@ import org.slf4j.LoggerFactory
 
 import java.util.concurrent.ConcurrentHashMap
 
-abstract class VersionCache implements BuildService<Params> {
-    interface Params extends BuildServiceParameters {
-
-    }
+abstract class VersionCache implements BuildService<BuildServiceParameters.None>, java.lang.AutoCloseable {
     private static Logger logger =  LoggerFactory.getLogger(VersionCache.class)
 
-    Map<String, String> versionMap = new ConcurrentHashMap<>();
+    Map<String, String> versionMap = new ConcurrentHashMap<>()
     VersionCache(){
 
     }
@@ -34,5 +31,10 @@ abstract class VersionCache implements BuildService<Params> {
     boolean contains(String vcsRoot)
     {
         return versionMap.containsKey(vcsRoot)
+    }
+
+    @Override
+    void close() throws Exception {
+        versionMap.clear()
     }
 }

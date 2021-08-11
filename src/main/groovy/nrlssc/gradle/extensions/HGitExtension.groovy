@@ -23,6 +23,9 @@ class HGitExtension {
     private List<String> relBranches = ['release', 'origin/release']
     private List<String> rcBranches = ['release-candidate', 'origin/release-candidate']
     private List<String> intBranches = ['default', 'origin/default', 'develop', 'origin/develop']
+    private Pattern relBranchPattern = null
+    private Pattern rcBranchPattern = null
+    private Pattern intBranchPattern = null
     String rcQualifier = 'rc'
     String intQualifier = 'dev'
 
@@ -85,6 +88,36 @@ class HGitExtension {
 
     void setIntBranches(List<String> intBranches) {
         this.intBranches = intBranches
+    }
+
+    Pattern getRelBranchPattern()
+    {
+        return relBranchPattern
+    }
+
+    void setRelBranchPattern(Pattern pattern)
+    {
+        this.relBranchPattern = pattern
+    }
+
+    Pattern getRCBranchPattern()
+    {
+        return rcBranchPattern
+    }
+
+    void setRCBranchPattern(Pattern pattern)
+    {
+        this.rcBranchPattern = pattern
+    }
+
+    Pattern getIntBranchPattern()
+    {
+        return intBranchPattern
+    }
+
+    void setIntBranchPattern(Pattern pattern)
+    {
+        this.intBranchPattern = pattern
     }
 
 
@@ -172,22 +205,28 @@ class HGitExtension {
 
 
     boolean isReleaseBranch(String branch){
+        if(relBranchPattern != null && branch.matches(relBranchPattern)) return true;
+
         for(String thisBranch in relBranches){
-            if(thisBranch == branch) return true
+            if(thisBranch.equalsIgnoreCase(branch)) return true
         }
         return false
     }
 
     boolean isRCBranch(String branch){
+        if(rcBranchPattern != null && branch.matches(rcBranchPattern)) return true;
+
         for(String thisBranch in rcBranches){
-            if(thisBranch == branch) return true
+            if(thisBranch.equalsIgnoreCase(branch)) return true
         }
         return false
     }
     
     boolean isIntBranch(String branch){
+        if(intBranchPattern != null && branch.matches(intBranchPattern)) return true;
+
         for(String thisBranch in intBranches){
-            if(thisBranch == branch) return true
+            if(thisBranch.equalsIgnoreCase(branch)) return true
         }
         return false
     }
@@ -430,8 +469,11 @@ class HGitExtension {
         return '0.0'
     }
 
+    private static boolean isSpecialBranch(String branch){
+        return branch.startsWith("feature/") || branch.startsWith("bugfix/") || branch.startsWith("hotfix/") || branch.startsWith("PR-")
+    }
+
     private static String getBetaQualifier(String branch){
-        //TODO grab feature/bugfix/hotfix data from branch name
         String qualifier = ""
         String namid = ""
         if (branch.startsWith("feature/")) {
@@ -502,6 +544,7 @@ class HGitExtension {
             String branch = fetchBranch()
 
 
+
             if (isReleaseBranch(branch)) {
                 qualifier = ''
             } else if (isRCBranch(branch)) {
@@ -510,6 +553,12 @@ class HGitExtension {
                 qualifier = intQualifier
             } else {
                 qualifier = getBetaQualifier(branch)
+            }
+
+            if(isSpecialBranch(branch))
+            {
+                if(qualifier != '') qualifier = qualifier + "-" + getBetaQualifier(branch)
+                else qualifier = getBetaQualifier(branch)
             }
             
             if(!isCI())

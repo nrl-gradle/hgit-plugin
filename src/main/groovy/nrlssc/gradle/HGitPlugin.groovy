@@ -47,10 +47,6 @@ class HGitPlugin implements Plugin<Project> {
         Provider<VersionCache> versionCacheProvider = project.getGradle().getSharedServices().registerIfAbsent("versioncache", VersionCache.class, {})
         VersionCache versionCache = versionCacheProvider.get()
 
-        this.project.gradle.buildFinished {
-            versionCache.clear()
-        }
-
         HGitExtension hgit = project.extensions.create("hgit", HGitExtension, project, versionCache)
         hgit.checkManualVersion()
 
