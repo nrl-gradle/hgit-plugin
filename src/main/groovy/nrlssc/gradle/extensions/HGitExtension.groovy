@@ -542,21 +542,21 @@ class HGitExtension {
 
             String qualifier
             String branch = fetchBranch()
-            logger.trace("Branch is '$branch'")
+            logger.debug("Branch is '$branch'")
 
 
             if (isReleaseBranch(branch)) {
                 qualifier = ''
-                logger.trace("is release")
+                logger.debug("is release")
             } else if (isRCBranch(branch)) {
                 qualifier = rcQualifier
-                logger.trace("is rc")
+                logger.debug("is rc")
             } else if (isIntBranch(branch)) {
                 qualifier = intQualifier
-                logger.trace("is integration")
+                logger.debug("is integration")
             } else {
                 qualifier = getBetaQualifier(branch)
-                logger.trace("is snapshot")
+                logger.debug("is snapshot")
             }
 
             if(isSpecialBranch(branch) && (isReleaseBranch(branch) || isRCBranch(branch) || isIntBranch(branch)))
@@ -564,7 +564,7 @@ class HGitExtension {
                 if(qualifier != '') qualifier += "-"
                 qualifier += getBetaQualifier(branch)
             }
-            logger.trace("Qualifier is '$qualifier'")
+            logger.debug("Qualifier is '$qualifier'")
             
             if(!isCI())
             {

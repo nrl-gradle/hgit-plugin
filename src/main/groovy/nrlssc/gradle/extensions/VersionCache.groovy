@@ -20,7 +20,7 @@ abstract class VersionCache implements BuildService<BuildServiceParameters.None>
     }
 
     String get(String vcsRoot){
-        logger.trace("Getting $vcsRoot from version cache")
+        logger.debug("Getting $vcsRoot from version cache")
         return versionMap.get(vcsRoot)
     }
 
