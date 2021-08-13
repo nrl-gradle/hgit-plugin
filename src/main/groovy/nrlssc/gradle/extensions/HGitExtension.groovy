@@ -45,40 +45,79 @@ class HGitExtension {
     void relBranch(String branchName){
         relBranches = [branchName]
     }
+    void setRelBranch(String branch)
+    {
+        relBranch(branch)
+    }
+
     void relBranches(String... branches)
     {
         relBranches = branches
     }
-
+    void setRelBranches(String... branches){
+        relBranches(branches)
+    }
 
     void rcBranch(String branchName){
         rcBranches = [branchName]
     }
+    void setRCBranch(String branchName)
+    {
+        rcBranch(branchName)
+    }
+
     void rcBranches(String... branches)
     {
         rcBranches = branches
+    }
+    void setRCBranches(String... branches)
+    {
+        rcBranches(branches)
     }
 
     void intBranch(String branch)
     {
         intBranches = [branch]
     }
+    void setIntBranch(String branch)
+    {
+        intBranch(branch)
+    }
+
     void intBranches(String... branches)
     {
         intBranches = branches
     }
+    void setIntBranches(String... branches)
+    {
+        intBranches(branches)
+    }
 
     void relBranchPattern(Pattern pattern)
     {
-        this.relBranchPattern = pattern
+        relBranchPattern = pattern
     }
+    void setRelBranchPattern(Pattern pattern)
+    {
+        relBranchPattern = pattern
+    }
+
     void rcBranchPattern(Pattern pattern)
     {
-        this.rcBranchPattern = pattern
+        rcBranchPattern = pattern
     }
+    void setRCBranchPattern(Pattern pattern)
+    {
+        rcBranchPattern = pattern
+    }
+
     void intBranchPattern(Pattern pattern)
     {
-        this.intBranchPattern = pattern
+        intBranchPattern = pattern
+    }
+    void setIntBranchPattern(Pattern pattern)
+    {
+        intBranchPattern = pattern
     }
 
 
@@ -503,24 +542,29 @@ class HGitExtension {
 
             String qualifier
             String branch = fetchBranch()
-
+            logger.trace("Branch is '$branch'")
 
 
             if (isReleaseBranch(branch)) {
                 qualifier = ''
+                logger.trace("is release")
             } else if (isRCBranch(branch)) {
                 qualifier = rcQualifier
+                logger.trace("is rc")
             } else if (isIntBranch(branch)) {
                 qualifier = intQualifier
+                logger.trace("is integration")
             } else {
                 qualifier = getBetaQualifier(branch)
+                logger.trace("is snapshot")
             }
 
-            if(isSpecialBranch(branch))
+            if(isSpecialBranch(branch) && (isReleaseBranch(branch) || isRCBranch(branch) || isIntBranch(branch)))
             {
-                if(qualifier != '') qualifier = qualifier + "-" + getBetaQualifier(branch)
-                else qualifier = getBetaQualifier(branch)
+                if(qualifier != '') qualifier += "-"
+                qualifier += getBetaQualifier(branch)
             }
+            logger.trace("Qualifier is '$qualifier'")
             
             if(!isCI())
             {
