@@ -42,80 +42,41 @@ class HGitExtension {
     
 
     //region getters/setters
-    String getRelBranch() {
-        return relBranches.join(",")
-    }
-    
-    void setRelBranch(String branchName){
+    void relBranch(String branchName){
         relBranches = [branchName]
     }
-    
-    List<String> getRelBranches(){
-        return relBranches
-    }
-    
-    void setRelBranches(List<String> branches){
+    void relBranches(String... branches)
+    {
         relBranches = branches
     }
 
-    String getRcBranch() {
-        return rcBranches.join(",")
-    }
 
-    void setRcBranch(String branchName){
+    void rcBranch(String branchName){
         rcBranches = [branchName]
     }
-
-    List<String> getRcBranches() {
-        return rcBranches
-    }
-
-    void setRcBranches(List<String> rcBranches) {
-        this.rcBranches = rcBranches
-    }
-
-    String getIntBranch() {
-        return intBranches.join(",")
-    }
-
-    void setIntBranch(String branchName){
-        intBranches = [branchName]
-    }
-
-    List<String> getIntBranches() {
-        return intBranches
-    }
-
-    void setIntBranches(List<String> intBranches) {
-        this.intBranches = intBranches
-    }
-
-    Pattern getRelBranchPattern()
+    void rcBranches(String... branches)
     {
-        return relBranchPattern
+        rcBranches = branches
     }
 
-    void setRelBranchPattern(Pattern pattern)
+    void intBranch(String branch)
+    {
+        intBranches = [branch]
+    }
+    void intBranches(String... branches)
+    {
+        intBranches = branches
+    }
+
+    void relBranchPattern(Pattern pattern)
     {
         this.relBranchPattern = pattern
     }
-
-    Pattern getRCBranchPattern()
-    {
-        return rcBranchPattern
-    }
-
-    void setRCBranchPattern(Pattern pattern)
+    void rcBranchPattern(Pattern pattern)
     {
         this.rcBranchPattern = pattern
     }
-
-    Pattern getIntBranchPattern()
-    {
-        return intBranchPattern
-    }
-
-    void setIntBranchPattern(Pattern pattern)
+    void intBranchPattern(Pattern pattern)
     {
         this.intBranchPattern = pattern
     }
