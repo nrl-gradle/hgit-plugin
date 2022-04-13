@@ -205,7 +205,7 @@ class HGitExtension {
 
 
     boolean isReleaseBranch(String branch){
-        if(relBranchPattern != null && branch.matches(relBranchPattern)) return true;
+        if(relBranchPattern != null && branch.matches(relBranchPattern)) return true
 
         for(String thisBranch in relBranches){
             if(thisBranch.equalsIgnoreCase(branch)) return true

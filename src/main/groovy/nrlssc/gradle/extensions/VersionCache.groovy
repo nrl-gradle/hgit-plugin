@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 
 import java.util.concurrent.ConcurrentHashMap
 
-abstract class VersionCache implements BuildService<BuildServiceParameters.None>, java.lang.AutoCloseable {
+abstract class VersionCache implements BuildService<BuildServiceParameters.None>, AutoCloseable {
     private static Logger logger =  LoggerFactory.getLogger(VersionCache.class)
 
     Map<String, String> versionMap = new ConcurrentHashMap<>()

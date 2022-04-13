@@ -1,6 +1,7 @@
 package nrlssc.gradle
 
 import nrlssc.gradle.extensions.HGitExtension
+import nrlssc.gradle.extensions.UselessVersionCache
 import nrlssc.gradle.extensions.VersionCache
 import nrlssc.gradle.helpers.PluginUtils
 import nrlssc.gradle.helpers.VersionScheme
@@ -44,23 +45,29 @@ class HGitPlugin implements Plugin<Project> {
     void apply(Project target) {
         this.project = target
 
-        Provider<VersionCache> versionCacheProvider = project.getGradle().getSharedServices().registerIfAbsent("versioncache", VersionCache.class, {})
-        VersionCache versionCache = versionCacheProvider.get()
+        VersionCache versionCache = null
+        try{
+            Provider<VersionCache> versionCacheProvider = project.getGradle().getSharedServices().registerIfAbsent("versioncache", VersionCache.class, {})
+            versionCache = versionCacheProvider.get()
+        }catch(Throwable) {
+            versionCache = new UselessVersionCache()
+        }
 
         HGitExtension hgit = project.extensions.create("hgit", HGitExtension, project, versionCache)
         hgit.checkManualVersion()
 
-        String version = hgit.getProjectVersion()
         logger.debug("$project.name has root of $project.rootProject.name")
 
-        if (!hgit.fastBuildEnabled() || PluginUtils.containsArtifactTask(project)) {
-            project.version = version
-            logger.lifecycle(project.name + " @ " + project.version)
-        } else {
-            project.version = getDate()
-            if (project.name == project.rootProject.name) {//only run once
-                if (hgit.fastBuildEnabled()) logger.lifecycle("Version Numbers suppressed due to the 'fastBuild' property.")
-                else logger.lifecycle("Version Numbers suppressed during during non-artifact generating tasks.")
+        project.gradle.projectsEvaluated {
+            if (!hgit.fastBuildEnabled() || PluginUtils.containsArtifactTask(project)) {
+                project.version = hgit.getProjectVersion()
+                logger.lifecycle(project.name + " @ " + project.version)
+            } else {
+                project.version = getDate()
+                if (project.name == project.rootProject.name) {//only run once
+                    if (hgit.fastBuildEnabled()) logger.lifecycle("Version Numbers suppressed due to the 'fastBuild' property.")
+                    else logger.lifecycle("Version Numbers suppressed during during non-artifact generating tasks.")
+                }
             }
         }
 
@@ -73,18 +80,16 @@ class HGitPlugin implements Plugin<Project> {
         PullDependenciesTask.createFor(project)
         PushBuildTagTask.createFor(project)
 
-        
+
         project.pluginManager.withPlugin('nrlssc.pub'){
             Task t = project.tasks.getByName('publish')
             if (t != null) {
                 t.doFirst {
                     HGitExtension ext = project.extensions.getByName('hgit')
-                    project.version = ext.getProjectVersion()
+                    project.version = ext.getProjectVersion() //SERIOUSLY, do not calc proj version before projects evaluated (it'll cache)
+                    project.pub.publishType = ext.isReleaseBranch(ext.fetchBranch()) ? 'release' : 'snapshot'
                 }
             }
-            
-            HGitExtension ext = project.extensions.getByType(HGitExtension)
-            project.pub.publishType = ext.isReleaseBranch(ext.fetchBranch()) ? 'release' : 'snapshot'
         }
         //handler for forcing pub publishType when/if configured together
         
