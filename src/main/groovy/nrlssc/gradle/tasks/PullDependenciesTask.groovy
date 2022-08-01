@@ -46,7 +46,10 @@ class PullDependenciesTask extends DefaultTask {
         
         JsonSlurper slurper = new JsonSlurper()
         Object deps = slurper.parse(project.file(DEP_FILE))
-        
+
+        File cloneRoot = PropertyName.preferCoprojectSubdir.getAsBoolean(project) ? project.file("coprojects") : project.projectDir.parentFile
+
+        if(!cloneRoot.exists()) cloneRoot.mkdirs()
 
         deps.each {
             String url = it.url
@@ -90,7 +93,7 @@ class PullDependenciesTask extends DefaultTask {
                 {
                     isGit = true
                 }
-                if(!PluginUtils.execute((hgit.getHG() + " identify $url"), project.projectDir, true).contains("abort"))
+                else if(!PluginUtils.execute((hgit.getHG() + " identify $url"), project.projectDir, true).contains("abort"))
                 {
                     isGit = false
                 }
@@ -98,7 +101,7 @@ class PullDependenciesTask extends DefaultTask {
 
 
             boolean isClone = true
-            File repoDir = new File("$project.projectDir.parentFile/$name")
+            File repoDir = new File("$cloneRoot/$name")
 
             if(repoDir.exists())
             {
@@ -117,7 +120,7 @@ class PullDependenciesTask extends DefaultTask {
             
             if(isClone)
             {
-                command += " clone$extra $url ../$name"
+                command += " clone$extra $url $name"
             }
             else {
                 command += " pull"
@@ -128,7 +131,7 @@ class PullDependenciesTask extends DefaultTask {
             if(isClone)
             {
                 logger.lifecycle("Cloning '$name'")
-                logger.lifecycle(PluginUtils.execute(command, project.projectDir, true))
+                logger.lifecycle(PluginUtils.execute(command, cloneRoot, true))
             }
             else 
             {
