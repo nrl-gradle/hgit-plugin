@@ -501,7 +501,7 @@ class HGitExtension {
         
         if(namid.length() > 0)
         {
-            String[] splits = namid.split("-")
+            String[] splits = namid.split("[\\-/\\\\]")
             namid = ""
             for(int i = 0; i < splits.length; i++)
             {
