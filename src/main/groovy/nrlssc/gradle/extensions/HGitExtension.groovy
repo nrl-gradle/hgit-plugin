@@ -418,15 +418,30 @@ class HGitExtension {
                 case 'hg':
                     return PluginUtils.execute([getHG(), 'branch'], project.projectDir)
                 case 'git':
-                    return PluginUtils.execute([getGit(), 'rev-parse', '--abbrev-ref', 'HEAD'], project.projectDir)
+                    String retVal = PluginUtils.execute([getGit(), 'branch', '--contains', 'HEAD'], project.rootProject.rootDir)
+                    if(retVal == null || retVal.length() == 0) return ''
+                    String[] lines = retVal.split("\n")
+                    for(int i = 0; i < lines.length; i++){
+                        if(lines[i].contains("(HEAD detached at")) continue
+
+                        return lines[i].substring(2)
+                    }
+
             }
+            return ''
             
         }catch (Exception ex)
         {
             return ''
         }
     }
-
+//String retVal = PluginUtils.execute([getGit(), 'branch', '--contains', 'HEAD'], project.rootProject.rootDir)
+//                    if(retVal == null || retVal.length() == 0) return ''
+//
+//                    String[] lines = retVal.split("\n")
+//
+//
+//                    return retVal.substring(2)
     String fetchPatchVersion()
     {
         try {
@@ -439,10 +454,7 @@ class HGitExtension {
                     }
                     return retVal
                 case 'git':
-                    String retVal = PluginUtils.execute([getGit(), 'branch', '--contains', 'HEAD'], project.rootProject.rootDir)
-                    String[] lines = retVal.split("\n")
-                    retVal = lines[lines.length - 1]
-                    return retVal.substring(2)
+                    return PluginUtils.execute([getGit(), 'rev-list', '--count', '--first-parent', 'HEAD'], project.rootProject.rootDir)
                 default:
                     return '0'
             }
