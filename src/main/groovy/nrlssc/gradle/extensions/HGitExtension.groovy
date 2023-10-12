@@ -439,7 +439,10 @@ class HGitExtension {
                     }
                     return retVal
                 case 'git':
-                    return PluginUtils.execute([getGit(), 'rev-list', '--count', '--first-parent', 'HEAD'], project.rootProject.rootDir)
+                    String retVal = PluginUtils.execute([getGit(), 'branch', '--contains', 'HEAD'], project.rootProject.rootDir)
+                    String[] lines = retVal.split("\n")
+                    retVal = lines[lines.length - 1]
+                    return retVal.substring(2)
                 default:
                     return '0'
             }
