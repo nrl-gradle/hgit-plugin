@@ -3,7 +3,7 @@ plugins{
     id 'groovy'
     id 'ivy-publish'
     id 'com.gradle.plugin-publish' version '1.0.0-rc-1'
-    id 'nrlssc.gradle' version '3.0.106'
+    id 'nrlssc.gradle' version '4.0.126'
 }
 
 
@@ -14,7 +14,7 @@ dependencies {
     api gradleApi()
     implementation localGroovy()
 
-    api 'mil.navy.nrlssc:gplugin-commons:3.0.15'
+    api 'mil.navy.nrlssc:gplugin-commons:3.0.17'
 
     testImplementation gradleTestKit(),
             'junit:junit:4.12'
