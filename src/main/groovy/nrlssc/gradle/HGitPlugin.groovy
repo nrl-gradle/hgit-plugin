@@ -111,7 +111,12 @@ class HGitPlugin implements Plugin<Project> {
             upConfRel = proj.configurations.create(UP_REL_CONFIG)
         }
 
-        Configuration defConf = proj.configurations.getByName('default')
+        Configuration defConf;
+        try {
+            defConf = proj.configurations.getByName('default')
+        }catch (Exception ex){
+            defConf = proj.configurations.create('default')
+        }
 
         upConf.extendsFrom(defConf)
         upConf.transitive = false
