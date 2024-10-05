@@ -22,7 +22,7 @@ class HGitExtension {
     
     private List<String> relBranches = ['release', 'origin/release']
     private List<String> rcBranches = ['release-candidate', 'origin/release-candidate']
-    private List<String> intBranches = ['default', 'origin/default', 'develop', 'origin/develop']
+    private List<String> intBranches = ['default', 'origin/default', 'develop', 'origin/develop', 'main', 'origin/main']
     private Pattern relBranchPattern = null
     private Pattern rcBranchPattern = null
     private Pattern intBranchPattern = null
