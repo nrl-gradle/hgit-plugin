@@ -417,15 +417,17 @@ class HGitExtension {
             {
                 case 'hg':
                     return PluginUtils.execute([getHG(), 'branch'], project.projectDir)
-                case 'git':
-                    String retVal = PluginUtils.execute([getGit(), 'branch', '--contains', 'HEAD'], project.rootProject.rootDir)
+                case 'git':  //git rev-parse --abbrev-ref HEAD
+//                    String retVal = PluginUtils.execute([getGit(), 'branch', '--contains', 'HEAD'], project.rootProject.rootDir)
+                    String retVal = PluginUtils.execute([getGit(), 'rev-parse', '--abbrev-ref', 'HEAD'], project.rootProject.rootDir)
                     if(retVal == null || retVal.length() == 0) return ''
-                    String[] lines = retVal.split("\n")
-                    for(int i = 0; i < lines.length; i++){
-                        if(lines[i].contains("(HEAD detached at")) continue
-
-                        return lines[i].substring(2)
-                    }
+                    return retVal;
+//                    String[] lines = retVal.split("\n")
+//                    for(int i = 0; i < lines.length; i++){
+//                        if(lines[i].contains("(HEAD detached at")) continue
+//
+//                        return lines[i].substring(2)
+//                    }
 
             }
             return ''
