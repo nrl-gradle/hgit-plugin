@@ -55,6 +55,18 @@ class RootVersionFileTask extends DefaultTask {
         {
             verFile.parentFile.mkdirs()
         }
-        verFile << "$version"
+
+        String text = """# Version Information
+# Generated at ${new Date()}
+project.root_version=$version
+project.version=${hgit.getProjectVersion()}
+project.branch=${hgit.fetchBranch()}
+project.hash=${hgit.getCommitHash()}
+"""
+
+
+        verFile << text
+
     }
+
 }

@@ -296,6 +296,25 @@ class HGitExtension {
         }
     }
 
+    String getCommitHash() {
+        try {
+            switch (getCVS())
+            {
+                case 'hg':
+                    return PluginUtils.execute([getHG(), "id", "--num", "-r", "branch(.)"], project.rootProject.rootDir)
+                case 'git':
+                    return PluginUtils.execute([getGit(), 'rev-parse', 'HEAD'], project.rootProject.rootDir)
+                default:
+                    return '0'
+            }
+        }
+        catch (Exception ex)
+        {
+            return '0'
+        }
+    }
+
+
     String fetchMajorVersionHG(){
         String version = '0'
         for(String branch : relBranches){
