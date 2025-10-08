@@ -14,7 +14,7 @@ dependencies {
     api gradleApi()
     implementation localGroovy()
 
-    api 'mil.navy.nrlssc:gplugin-commons:3.0.20'
+    api 'mil.navy.nrlssc:gplugin-commons:3.0.21'
 
     testImplementation gradleTestKit(),
             'junit:junit:4.12'
@@ -25,16 +25,15 @@ hgit{
     forceGit = true
 }
 
-pluginBundle {
+
+gradlePlugin {
     website = 'https://github.com/nrl-gradle/hgit-plugin'
     vcsUrl = 'https://github.com/nrl-gradle/hgit-plugin.git'
-    tags = ['hg', 'git', 'versioning']
-}
-gradlePlugin {
     //noinspection GroovyAssignabilityCheck
     plugins {
         create('hgitPlugin') {
             id = 'nrlssc.hgit'
+            tags = ['hg', 'git', 'versioning']
             displayName = 'HG/Git Automatic Versioning'
             description = 'Automatic versioning based on commits to Mercurial or Git, and related utilities'
             implementationClass = 'nrlssc.gradle.HGitPlugin'
