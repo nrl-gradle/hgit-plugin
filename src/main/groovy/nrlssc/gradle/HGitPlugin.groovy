@@ -124,8 +124,6 @@ class HGitPlugin implements Plugin<Project> {
         upConfRel.extendsFrom(defConf)
         upConfRel.transitive = false
 
-        proj.configurations.add(upConfRel)
-        proj.configurations.add(upConf)
 
         proj.configurations {
             upConf

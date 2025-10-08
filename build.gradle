@@ -4,11 +4,17 @@ plugins{
     id 'java'
     id 'ivy-publish'
     id 'com.gradle.plugin-publish' version '1.3.0'
-    id 'nrlssc.gradle' version '4.0.126'
+    id 'nrlssc.gradle' version '5.0.142'
 }
 
-sourceCompatibility = 1.8
+
 compileJava.options.encoding = 'UTF-8'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 dependencies {
     api gradleApi()
