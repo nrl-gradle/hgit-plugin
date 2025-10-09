@@ -123,8 +123,8 @@ class HGitExtension {
 
     private boolean forceManual = false
     private boolean versionCachedOrFailed = false
-    private int major
-    private int minor
+    private int majorVersion
+    private int minorVersion
 
     void checkManualVersion()
     {
@@ -140,8 +140,8 @@ class HGitExtension {
                     String ver = f.text.trim()
                     try{
                         String[] splits = ver.split("\\.");
-                        major = Integer.parseInt(splits[0])
-                        minor = Integer.parseInt(splits[1])
+                        majorVersion = Integer.parseInt(splits[0])
+                        minorVersion = Integer.parseInt(splits[1])
                         forceManual = true
                         stopLooking = true
                     }catch(ignored){
@@ -163,12 +163,21 @@ class HGitExtension {
 
     int getMajorVersion() {
         checkManualVersion()
-        return major
+        return majorVersion
     }
 
     int getMinorVersion() {
         checkManualVersion()
-        return minor
+        return minorVersion
+    }
+
+    void setMajorVersion(int major){
+        versionScheme = VersionScheme.Manual
+        this.majorVersion = major
+    }
+    void setMinorVersion(int minor){
+        versionScheme = VersionScheme.Manual
+        this.minorVersion = minor
     }
 
     void setFastBuild(boolean fb){
