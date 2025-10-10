@@ -293,7 +293,7 @@ class HGitExtension {
                 case 'hg':
                     return PluginUtils.execute([getHG(), "id", "--num", "-r", "branch(.)"], project.rootProject.rootDir)
                 case 'git':
-                    return PluginUtils.execute([getGit(), 'rev-list', '--count', '--first-parent', 'HEAD'], project.rootProject.rootDir)
+                    return fetchPatchVersionGit(project.rootProject.rootDir)
                 default:
                     return '0'
             }
@@ -472,6 +472,39 @@ class HGitExtension {
 //
 //
 //                    return retVal.substring(2)
+
+    private static Pattern tagPattern = Pattern.compile(/^[Vv](\d+\.\d+).*$/)
+
+    String fetchPatchVersionGit(File workingDir = project.projectDir){
+        try {
+            String thisTags = PluginUtils.execute([getGit(), 'describe', '--exact-match', '--tags'], workingDir)
+            if (thisTags != null && thisTags.length() > 0 && thisTags.matches(tagPattern)) {
+                return "0"
+            } else {
+                String[] latestVTags = PluginUtils.execute([getGit(), 'tag', '--sort=-v:refname', '--no-contains'], workingDir).split("\n")
+                String latestVTag = null
+                for (String s : latestVTags) {
+                    if (s.matches(tagPattern)) {
+                        latestVTag = s
+                        break
+                    }
+                }
+
+                if(latestVTag != null)
+                {
+                    return PluginUtils.execute([getGit(), 'rev-list', '--count', "${latestVTag}..HEAD"], workingDir)
+                }
+                else {
+                    return PluginUtils.execute([getGit(), 'rev-list', '--count', 'HEAD'], workingDir)
+                }
+            }
+        }catch (Exception ex){
+            logger.error("Error calculating git patch number", ex)
+            return "unspecified"
+        }
+
+    }
+
     String fetchPatchVersion()
     {
         try {
@@ -480,11 +513,11 @@ class HGitExtension {
                     String retVal = PluginUtils.execute ( [ getHG ( ) , 'id', '--num' ], project.projectDir )
                     if ( retVal.contains ( "+" ) )
                     {
-                    retVal = retVal.substring ( 0, retVal.indexOf ("+"))
+                        retVal = retVal.substring ( 0, retVal.indexOf ("+"))
                     }
                     return retVal
                 case 'git':
-                    return PluginUtils.execute([getGit(), 'rev-list', '--count', '--first-parent', 'HEAD'], project.rootProject.rootDir)
+                    return fetchPatchVersionGit()
                 default:
                     return '0'
             }
@@ -497,14 +530,14 @@ class HGitExtension {
     String fetchGitPrimaryVersion()
     {
         try{
-            Pattern p = Pattern.compile('[Vv](\\d+\\.\\d+).*')
+
             String tagStr = PluginUtils.execute([getGit(), 'tag', '--list', '--sort=-v:refname', '--merged'], project.projectDir)
 
             String[] splits = tagStr.split("\n")
 
             for(String tag : splits) {
 
-                Matcher m = p.matcher(tag)
+                Matcher m = tagPattern.matcher(tag)
                 if (m.matches()) {
                     return m.group(1)
                 }
