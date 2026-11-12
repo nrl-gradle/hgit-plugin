@@ -4,6 +4,8 @@ import nrlssc.gradle.HGitPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -11,7 +13,9 @@ import org.slf4j.LoggerFactory
 class LookupDependenciesTask extends DefaultTask {
     private static Logger logger = LoggerFactory.getLogger(LookupDependenciesTask.class)
 
+    @Input
     boolean checkRC = false
+    @Input
     static String NRL_GROUP = 'nrl'
 
     static LookupDependenciesTask createFor(Project project)

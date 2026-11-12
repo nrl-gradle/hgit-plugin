@@ -30,7 +30,6 @@ class PullDependenciesTask extends DefaultTask {
     @TaskAction
     void run()
     {
-        //TODO make work with DI2E
         Project project = getProject()
         if(!project.file(DEP_FILE).exists()){
             logger.debug("Skipping $name on $project due to missing $DEP_FILE file")
@@ -131,11 +130,13 @@ class PullDependenciesTask extends DefaultTask {
             if(isClone)
             {
                 logger.lifecycle("Cloning '$name'")
+                logger.debug("Executing '$command'")
                 logger.lifecycle(PluginUtils.execute(command, cloneRoot, true))
             }
             else 
             {
                 logger.lifecycle("Pulling '$name'")
+                logger.debug("Executing '$command'")
                 logger.lifecycle(PluginUtils.execute(command, repoDir, true))
                 
             }
