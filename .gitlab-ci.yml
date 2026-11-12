@@ -1,0 +1,27 @@
+spec:
+  inputs:
+    pipeline_ref:
+      default: main
+---
+
+include:
+  - project: 'NRLSSCGEO/nrlsscgeo-gitlab-ci'
+    ref: $[[ inputs.pipeline_ref ]]
+    file: 'multi-stage-nrl-gradle-pipeline.yml'
+
+
+variables:
+  ENABLE_SONARQUBE: "True"
+  ENABLE_XRAY: "True"
+
+maven-publish:
+  rules:
+    - when: never
+
+publish-plugins:
+  stage: publish
+  extends: .gradle-checkout
+  script:
+    - ./gradlew publish publishPlugins -PartiUsername="$ARTI_AWS_USER" -PartiPassword="$ARTI_AWS_PASS" -PgitlabUsername='Job-Token' -PgitlabPassword="$CI_JOB_TOKEN" -Pgradle.publish.key="$GPORTAL_KEY" -Pgradle.publish.secret="$GPORTAL_SECRET"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "release"
