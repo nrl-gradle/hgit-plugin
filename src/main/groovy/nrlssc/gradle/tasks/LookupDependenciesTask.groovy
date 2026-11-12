@@ -15,7 +15,6 @@ class LookupDependenciesTask extends DefaultTask {
 
     @Input
     boolean checkRC = false
-    @Input
     static String NRL_GROUP = 'nrl'
 
     static LookupDependenciesTask createFor(Project project)
