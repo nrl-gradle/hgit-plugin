@@ -17,6 +17,9 @@ class LookupDependenciesTask extends DefaultTask {
     boolean checkRC = false
     static String NRL_GROUP = 'nrl'
 
+    @Input
+    boolean primaryGroupOnly = true
+
     static LookupDependenciesTask createFor(Project project)
     {
         LookupDependenciesTask task = project.tasks.create("lookupDependencies", LookupDependenciesTask.class)
@@ -45,7 +48,7 @@ class LookupDependenciesTask extends DefaultTask {
         
         println "\nLatest Dependency Versions:"
         upConf.resolvedConfiguration.resolvedArtifacts.each {
-            if(it.moduleVersion.toString().split(":")[0].equalsIgnoreCase(project.group.toString())) {
+            if(!primaryGroupOnly || it.moduleVersion.toString().split(":")[0].equalsIgnoreCase(project.group.toString())) {
                 println "${it.moduleVersion}"
             }
         }

@@ -447,7 +447,25 @@ class HGitExtension {
                     return PluginUtils.execute([getHG(), 'branch'], project.projectDir)
                 case 'git':  //git rev-parse --abbrev-ref HEAD
 //                    String retVal = PluginUtils.execute([getGit(), 'branch', '--contains', 'HEAD'], project.rootProject.rootDir)
-                    String retVal = PluginUtils.execute([getGit(), 'rev-parse', '--abbrev-ref', 'HEAD'], project.rootProject.rootDir)
+                    String retVal = PluginUtils.execute([getGit(), 'rev-parse', '--abbrev-ref', 'HEAD'], project.projectDir)
+                    if(retVal.equalsIgnoreCase('HEAD')){
+                        String[] branches = PluginUtils.execute([getGit(), '--no-pager', 'branch', '-a', '-sort=-committerdate',  '--contains', 'HEAD'], project.projectDir).split('\n')
+
+                        String b = branches[0]
+                        if(isReleaseBranch(b.trim()))
+                        {
+                            retVal = b;
+                            break;
+                        }
+                        if(isIntBranch(b.trim()))
+                        {
+                            retVal = b;
+                            break;
+                        }
+
+
+                    }
+
                     if(retVal == null || retVal.length() == 0) return ''
                     return retVal;
 //                    String[] lines = retVal.split("\n")
