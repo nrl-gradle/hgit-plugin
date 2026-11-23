@@ -14,6 +14,8 @@ class UpdateDependenciesTask extends DefaultTask {
 
     @Input
     boolean checkRC = false
+    @Input
+    boolean full = false
 
     static UpdateDependenciesTask createFor(Project project)
     {
@@ -43,7 +45,7 @@ class UpdateDependenciesTask extends DefaultTask {
 
         Map<String, String> depReplacer = new HashMap<>()
         upConf.resolvedConfiguration.resolvedArtifacts.each {
-            if(it.moduleVersion.toString().split(":")[0].equalsIgnoreCase(project.group.toString())) {
+            if(full || it.moduleVersion.toString().split(":")[0].equalsIgnoreCase(project.group.toString())) {
                 String[] splits = it.moduleVersion.toString().split(":")
                 depReplacer.put("'" + splits[0] + ":" + splits[1] + ":(.*?)'" , "'" + it.moduleVersion.toString() + "'")
             }

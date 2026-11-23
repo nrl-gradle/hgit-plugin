@@ -15,15 +15,14 @@ class LookupDependenciesTask extends DefaultTask {
 
     @Input
     boolean checkRC = false
-    static String NRL_GROUP = 'nrl'
 
     @Input
-    boolean primaryGroupOnly = true
+    boolean full = false
 
     static LookupDependenciesTask createFor(Project project)
     {
         LookupDependenciesTask task = project.tasks.create("lookupDependencies", LookupDependenciesTask.class)
-        task.group = NRL_GROUP
+        task.group = HGitPlugin.TASK_GROUP
         task.description = 'Lists latest release version of all (non-transitive) dependencies in your group.'
         return task
     }
@@ -31,7 +30,7 @@ class LookupDependenciesTask extends DefaultTask {
     static LookupDependenciesTask createRCFor(Project project)
     {
         LookupDependenciesTask task = project.tasks.create("lookupDependenciesNightly", LookupDependenciesTask.class)
-        task.group = NRL_GROUP
+        task.group = HGitPlugin.TASK_GROUP
         task.description = 'List latest version of all (non-transitive) dependencies in your group.'
         task.checkRC = true
         return task
@@ -48,7 +47,7 @@ class LookupDependenciesTask extends DefaultTask {
         
         println "\nLatest Dependency Versions:"
         upConf.resolvedConfiguration.resolvedArtifacts.each {
-            if(!primaryGroupOnly || it.moduleVersion.toString().split(":")[0].equalsIgnoreCase(project.group.toString())) {
+            if(full || it.moduleVersion.toString().split(":")[0].equalsIgnoreCase(project.group.toString())) {
                 println "${it.moduleVersion}"
             }
         }
