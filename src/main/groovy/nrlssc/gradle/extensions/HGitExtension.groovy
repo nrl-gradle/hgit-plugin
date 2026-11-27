@@ -219,6 +219,17 @@ class HGitExtension {
         for(String thisBranch in relBranches){
             if(thisBranch.equalsIgnoreCase(branch)) return true
         }
+
+        try {
+            String tag = PluginUtils.execute([getGit(), "describe", "--exact-match", "--tags"], project.projectDir)
+            if(tag.matches(/v(\d+)\\.(\d+)/))
+            {
+                return true;
+            }
+        }catch (Exception ex){
+            return false;
+        }
+
         return false
     }
 
