@@ -7,6 +7,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -17,6 +18,7 @@ class LookupDependenciesTask extends DefaultTask {
     boolean checkRC = false
 
     @Input
+    @Option(option='full', description = 'also looks up non-group dependencies')
     boolean full = false
 
     static LookupDependenciesTask createFor(Project project)

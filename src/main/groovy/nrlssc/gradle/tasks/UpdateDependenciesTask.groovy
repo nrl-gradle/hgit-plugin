@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -15,6 +16,7 @@ class UpdateDependenciesTask extends DefaultTask {
     @Input
     boolean checkRC = false
     @Input
+    @Option(option='full', description = 'also updates non-group dependencies')
     boolean full = false
 
     static UpdateDependenciesTask createFor(Project project)
