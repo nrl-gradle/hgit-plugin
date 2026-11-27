@@ -20,9 +20,9 @@ class HGitExtension {
     VersionScheme versionScheme = VersionScheme.Standard
     String prereleaseString = 'SNAPSHOT'
     
-    private List<String> relBranches = ['release', 'origin/release']
-    private List<String> rcBranches = ['release-candidate', 'origin/release-candidate']
-    private List<String> intBranches = ['default', 'origin/default', 'develop', 'origin/develop', 'main', 'origin/main']
+    private List<String> relBranches = ['release', 'origin/release', 'remotes/origin/release']
+    private List<String> rcBranches = ['release-candidate', 'origin/release-candidate', 'remotes/origin/release-candidate']
+    private List<String> intBranches = ['default', 'origin/default', 'remotes/origin/default', 'develop', 'origin/develop', 'remotes/origin/develop', 'main', 'origin/main', 'remotes/origin/main']
     private Pattern relBranchPattern = null
     private Pattern rcBranchPattern = null
     private Pattern intBranchPattern = null
